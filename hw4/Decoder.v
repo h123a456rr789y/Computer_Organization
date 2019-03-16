@@ -1,0 +1,54 @@
+module Decoder( instr_op_i, Jump_o, ALUOp_o, ALUSrc_o, Branch_o,BranchType_o, MemWrite_o,MemRead_o,MemtoReg_o, RegDst_o, RegWrite_o );
+     
+//I/O ports
+input	[6-1:0] instr_op_i;
+
+output		RegWrite_o;
+output	[3-1:0] ALUOp_o;
+output		ALUSrc_o;
+output		RegDst_o,MemtoReg_o;
+output		Branch_o,BranchType_o,Jump_o,MemRead_o,MemWrite_o;
+ 
+//Internal Signals
+wire	[3-1:0] ALUOp_o;
+wire		ALUSrc_o;
+wire		RegWrite_o;
+wire	[1:0] RegDst_o,MemtoReg_o;
+wire		Branch_o,BranchType_o,Jump_o,MemRead_o,MemWrite_o;
+wire		Jal_o;
+//Main function
+
+
+assign	ALUOp_o = (instr_op_i == 6'b111111) ? 3'b010://R-type
+		(instr_op_i == 6'b110111) ? 3'b100://addi
+		(instr_op_i == 6'b110111 ) ? 3'b101://lui
+		(instr_op_i == 6'b100001 || instr_op_i == 6'b100011) ? 3'b000://lw sw
+		(instr_op_i == 6'b111011) ? 3'b001://beq
+		(instr_op_i == 6'b100101) ? 3'b110://bne
+		(instr_op_i == 6'b100010) ? 3'b000://jump
+		3'b000;
+
+
+
+assign	ALUSrc_o = (instr_op_i == 6'b111111 || instr_op_i == 6'b111011 || instr_op_i == 6'b100101) ? 1'b0: 1'b1;//I-type src sign_extend  R-type src rt
+
+assign	RegWrite_o = (instr_op_i == 6'b100011 || instr_op_i == 6'b111011 || instr_op_i == 6'b100101 || instr_op_i == 6'b100010) ? 1'b0: 1'b1;// sw beq bne jump don't need RegWrite
+
+assign	MemtoReg_o = (instr_op_i == 6'b100111) ? 2'b10:(instr_op_i == 6'b100001) ? 2'b01: 2'b00;//lw
+
+assign	RegDst_o = (instr_op_i == 6'b100111) ? 2'b10: (instr_op_i == 6'b111111) ? 1'b1: 1'b0;//R-type dst rd else rt
+
+assign	Branch_o = (instr_op_i == 6'b111011 || instr_op_i == 6'b100101) ? 1'b1:1'b0;//beq bne
+
+assign	BranchType_o = (instr_op_i== 6'b111011)?1'b0:1'b1;
+
+assign 	Jump_o = (instr_op_i == 6'b100010 || instr_op_i == 6'b100111) ? 1'b1:1'b0;
+
+assign 	MemRead_o = (instr_op_i == 6'b100001) ? 1'b1:1'b0;//lw
+
+assign 	MemWrite_o = (instr_op_i == 6'b100011) ? 1'b1:1'b0;//sw
+
+assign 	Jal_o = (instr_op_i== 6'b100111)?1'b1:1'b0 ;
+
+endmodule
+   
