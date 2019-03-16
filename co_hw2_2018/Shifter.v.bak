@@ -1,0 +1,15 @@
+module Shifter( result, leftRight, shamt, sftSrc  );
+    
+  	output wire[31:0] result;
+
+  	input wire leftRight;
+  	input wire[4:0] shamt;
+  	input wire[31:0] sftSrc ;
+	
+	wire result_tmp;
+  	
+	assign result_tmp= (leftRight==0) ? sftSrc >> shamt : sftSrc << shamt;
+
+	assign result=result_tmp;
+
+endmodule 
